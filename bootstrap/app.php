@@ -12,8 +12,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Automatically set Bearer token from cookie for API requests
+        $middleware->api(prepend: [
+            \App\Http\Middleware\SetBearerTokenFromCookie::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Return JSON for unauthenticated errors on API routes
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Unauthenticated.'
+                ], 401);
+            }
+        });
     })->create();
