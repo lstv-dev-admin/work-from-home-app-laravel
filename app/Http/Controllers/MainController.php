@@ -16,45 +16,29 @@ class MainController extends Controller
         $empcde = $request->query('empcde');
         $capdate = $request->query('capdate');
 
-        if (Schema::hasTable('capturefile')) {
-            $query = DB::table('capturefile');
+        $query = DB::table('capturefile');
 
-            if ($empcde !== null) {
-                $query->where('empcde', $empcde);
-            }
-
-            if ($capdate !== null) {
-                $query->whereDate('capdate', $capdate);
-            }
-
-            $rows = $query->paginate($perPage, ['*'], 'page', $page);
-
-            return response()->json([
-                'success' => true,
-                'data' => $rows->items(),
-                'meta' => [
-                    'current_page' => $rows->currentPage(),
-                    'per_page' => $rows->perPage(),
-                    'total' => $rows->total(),
-                    'last_page' => $rows->lastPage(),
-                ],
-            ]);
-        } else {
-            $sample = collect([
-                ['message' => 'capturefile table not found, returning sample data'],
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'data' => $sample,
-                'meta' => [
-                    'current_page' => $page,
-                    'per_page' => $perPage,
-                    'total' => $sample->count(),
-                    'last_page' => 1,
-                ],
-            ]);
+        if ($empcde !== null) {
+            $query->where('empcde', $empcde);
         }
+
+        if ($capdate !== null) {
+            $query->whereDate('capdate', $capdate);
+        }
+
+        $rows = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'success' => true,
+            'data' => $rows->items(),
+            'meta' => [
+                'current_page' => $rows->currentPage(),
+                'per_page' => $rows->perPage(),
+                'total' => $rows->total(),
+                'last_page' => $rows->lastPage(),
+            ],
+        ]);
+
     }
 
     public function showImage(Request $request)
