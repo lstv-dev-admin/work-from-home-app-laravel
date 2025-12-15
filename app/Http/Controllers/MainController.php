@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -15,8 +16,10 @@ class MainController extends Controller
         $page = max($request->integer('page', 1), 1);
         $empcde = $request->query('empcde');
         $capdate = $request->query('capdate');
+        $capdateFrom = $request->query('capdate_from');
+        $capdateTo = $request->query('capdate_to');
 
-        $query = DB::table('capturefile');
+        $query = DB::table('capturefile');;
 
         if ($empcde !== null) {
             $query->where('empcde', $empcde);
@@ -24,7 +27,26 @@ class MainController extends Controller
 
         if ($capdate !== null) {
             $query->whereDate('capdate', $capdate);
+        } elseif ($capdateFrom !== null || $capdateTo !== null) {
+            if ($capdateFrom !== null) {
+                $query->whereDate('capdate', '>=', $capdateFrom);
+            }
+            if ($capdateTo !== null) {
+                $query->whereDate('capdate', '<=', $capdateTo);
+            }
         }
+
+        if(Auth::user()->monitorsetup == 'manual') {
+            $empcde_filter = DB::table('tablepar')
+                ->where('usrcde', Auth::user()->usrcde)
+                ->orderBy('gridorder')  // Before pluck()
+                ->pluck('empcde')       // Get empcde values
+                ->toArray();
+            $query->whereIn('empcde', $empcde_filter ?? []);
+        }
+
+        $query->orderBy('capdate', 'desc')
+            ->orderBy('captime');
 
         $rows = $query->paginate($perPage, ['*'], 'page', $page);
 
@@ -38,7 +60,6 @@ class MainController extends Controller
                 'last_page' => $rows->lastPage(),
             ],
         ]);
-
     }
 
     public function showImage(Request $request)

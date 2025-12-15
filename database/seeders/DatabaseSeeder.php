@@ -2,8 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Userfile;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,12 +15,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
-            ['email' => 'demo@example.com'],
+        // Create test user with monitorsetup = 'fifo'
+        Userfile::updateOrCreate(
+            ['usrcde' => 'testfifo'],
             [
-                'name' => 'Demo User',
-                'password' => Hash::make('Secret123!'),
+                'email' => 'testfifo@system.local',
+                'name' => 'testfifo',
+                'usrpwd' => sha1('password123'), // SHA1 hashed password
+                'monitorsetup' => 'fifo',
             ]
         );
+
+        // Create test user with monitorsetup = 'manual'
+        Userfile::updateOrCreate(
+            ['usrcde' => 'testmanual'],
+            [
+                'email' => 'testmanual@system.local',
+                'name' => 'testmanual',
+                'usrpwd' => sha1('password123'), // SHA1 hashed password
+                'monitorsetup' => 'manual',
+            ]
+        );
+
     }
 }

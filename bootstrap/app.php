@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Automatically set Bearer token from cookie for API requests
         $middleware->api(prepend: [
             \App\Http\Middleware\SetBearerTokenFromCookie::class,
+            \App\Http\Middleware\EnsureUserfileAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
