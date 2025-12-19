@@ -36,16 +36,16 @@ class MainController extends Controller
             }
         }
 
-        if(Auth::user()->monitorsetup == 'manual') {
-            $empcde_filter = DB::table('tablepar')
-                ->where('usrcde', Auth::user()->usrcde)
-                ->orderBy('gridorder')  // Before pluck()
-                ->pluck('empcde')       // Get empcde values
-                ->toArray();
-            $query->whereIn('empcde', $empcde_filter ?? []);
-        }
+        // if(Auth::user()->monitorsetup == 'manual') {
+        //     $empcde_filter = DB::table('tablepar')
+        //         ->where('usrcde', Auth::user()->usrcde)
+        //         ->orderBy('gridorder')  // Before pluck()
+        //         ->pluck('empcde')       // Get empcde values
+        //         ->toArray();
+        //     $query->whereIn('empcde', $empcde_filter ?? []);
+        // }
 
-        $query->orderBy('capdate', 'desc')
+        $query->where('empcde','DLAN')->orderBy('capdate', 'desc')
             ->orderBy('captime');
 
         $rows = $query->paginate($perPage, ['*'], 'page', $page);
