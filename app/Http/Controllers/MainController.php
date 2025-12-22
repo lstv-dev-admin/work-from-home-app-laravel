@@ -25,6 +25,14 @@ class MainController extends Controller
             $query->where('empcde', $empcde);
         }
 
+        if($request->query('search')) {
+            $query->where('empcde', 'like', '%' . $request->query('search') . '%');
+            $query->orWhere('capdate', 'like', '%' . $request->query('search') . '%');
+            $query->orWhere('captime', 'like', '%' . $request->query('search') . '%');
+            $query->orWhere('screason', 'like', '%' . $request->query('search') . '%');
+            $query->orWhere('snreason', 'like', '%' . $request->query('search') . '%');
+        }
+
         if ($capdate !== null) {
             $query->whereDate('capdate', $capdate);
         } elseif ($capdateFrom !== null || $capdateTo !== null) {
@@ -59,41 +67,6 @@ class MainController extends Controller
                 'total' => $rows->total(),
                 'last_page' => $rows->lastPage(),
             ],
-        ]);
-    }
-
-    public function showImage(Request $request)
-    {
-        $imageName = $request->input('scimagename');
-        $directoryName = $request->input('scdirectoryname');
-
-        $disk = Storage::disk('public');
-        $defaultImage = 'default.png'; // place your fallback image at storage/app/public/default.png
-
-        $imagePath = null;
-
-        if ($imageName !== null && $directoryName !== null) {
-            $safeName = basename($imageName);
-            $safeDirectory = trim(str_replace(['\\', '..'], '/', $directoryName), '/');
-            $candidate = $safeDirectory === '' ? $safeName : $safeDirectory . '/' . $safeName;
-
-            if ($disk->exists($candidate)) {
-                $imagePath = $disk->path($candidate);
-            }
-        }
-
-        if ($imagePath === null) {
-            if (!$disk->exists($defaultImage)) {
-                return response()->json(['success' => false, 'message' => 'Default image not found'], 404);
-            }
-
-            $imagePath = $disk->path($defaultImage);
-        }
-
-        $mime = mime_content_type($imagePath) ?: 'application/octet-stream';
-
-        return response()->file($imagePath, [
-            'Content-Type' => $mime,
         ]);
     }
 }
